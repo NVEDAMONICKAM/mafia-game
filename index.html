@@ -471,7 +471,7 @@ h1, h2, h3, .caveat { font-family: 'Caveat', cursive; }
 <body>
 
 <!-- ===== TITLE SCREEN ===== -->
-<div id="screen-title" class="screen active flex-col center">
+<div id="screen-title" class="screen active center">
   <div class="flex-col center gap-16" style="max-width:360px;width:100%;">
     <img src="mafia_logo.png" alt="Mafia Narrator" class="title-logo" onerror="this.style.display='none'">
     <h1 class="caveat title-xl" style="color:#c0392b;text-shadow:2px 2px 0 rgba(192,57,43,0.15);">Mafia</h1>
@@ -492,7 +492,7 @@ h1, h2, h3, .caveat { font-family: 'Caveat', cursive; }
 </div>
 
 <!-- ===== SETUP: PLAYERS ===== -->
-<div id="screen-setup-players" class="screen flex-col">
+<div id="screen-setup-players" class="screen">
   <div class="header-bar">
     <button class="btn btn-ghost btn-sm" onclick="goBack('title')">← Back</button>
     <span class="header-title">Who's Playing?</span>
@@ -510,7 +510,7 @@ h1, h2, h3, .caveat { font-family: 'Caveat', cursive; }
 </div>
 
 <!-- ===== SETUP: ROLES ===== -->
-<div id="screen-setup-roles" class="screen flex-col">
+<div id="screen-setup-roles" class="screen">
   <div class="header-bar">
     <button class="btn btn-ghost btn-sm" onclick="goBack('setup-players')">← Back</button>
     <span class="header-title" id="rolesHeaderTitle">Assign Roles</span>
@@ -550,7 +550,7 @@ h1, h2, h3, .caveat { font-family: 'Caveat', cursive; }
 </div>
 
 <!-- ===== ROLE REVEAL ===== -->
-<div id="screen-role-reveal" class="screen flex-col">
+<div id="screen-role-reveal" class="screen">
   <div class="header-bar">
     <button class="btn btn-ghost btn-sm" onclick="confirmBackToSetup()">← Back</button>
     <span class="header-title">Reveal Roles</span>
@@ -567,7 +567,7 @@ h1, h2, h3, .caveat { font-family: 'Caveat', cursive; }
 </div>
 
 <!-- ===== NIGHT PHASE ===== -->
-<div id="screen-night" class="screen flex-col night-bg">
+<div id="screen-night" class="screen night-bg">
   <div style="background:rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.1);padding:12px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50;">
     <span class="caveat night-title" style="font-size:1.2rem;flex:1;" id="nightHeaderLabel">🌙 Night 1</span>
     <span class="small-text" style="color:#c8b8e8;" id="nightStepCounter"></span>
@@ -579,7 +579,7 @@ h1, h2, h3, .caveat { font-family: 'Caveat', cursive; }
 </div>
 
 <!-- ===== NIGHT RESOLUTION ===== -->
-<div id="screen-night-resolution" class="screen flex-col">
+<div id="screen-night-resolution" class="screen">
   <div class="header-bar">
     <span class="header-title">🌅 Morning Briefing</span>
   </div>
@@ -594,7 +594,7 @@ h1, h2, h3, .caveat { font-family: 'Caveat', cursive; }
 </div>
 
 <!-- ===== DAY PHASE ===== -->
-<div id="screen-day" class="screen flex-col">
+<div id="screen-day" class="screen">
   <div class="header-bar">
     <span class="header-title">☀️ Day <span id="dayRoundLabel"></span></span>
   </div>
@@ -616,7 +616,7 @@ h1, h2, h3, .caveat { font-family: 'Caveat', cursive; }
 </div>
 
 <!-- ===== WIN SCREEN ===== -->
-<div id="screen-win" class="screen flex-col">
+<div id="screen-win" class="screen">
   <div class="container flex-col gap-16" style="padding-top:40px;padding-bottom:40px;">
     <div class="text-center">
       <span id="winIcon" class="win-icon" style="font-size:80px;display:block;margin-bottom:16px;"></span>
