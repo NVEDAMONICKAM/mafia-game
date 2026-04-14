@@ -558,9 +558,9 @@ function addPlayer(){
   var name=inp.value.trim();if(!name)return;
   if(state.setupPlayers.length>=30){alert('Max 30 players');return;}
   if(state.setupPlayers.includes(name)){var i=2;while(state.setupPlayers.includes(name+' ('+i+')'))i++;name=name+' ('+i+')';}
-  state.setupPlayers.push(name);inp.value='';inp.focus();renderSetupPlayers();
+  state.setupPlayers.push(name);inp.value='';inp.focus();renderSetupPlayers();saveState();
 }
-function removePlayer(i){state.setupPlayers.splice(i,1);renderSetupPlayers();}
+function removePlayer(i){state.setupPlayers.splice(i,1);renderSetupPlayers();saveState();}
 function goToRoles(){
   if(state.setupPlayers.length<5||state.setupPlayers.length>30)return;
   state.players=state.setupPlayers.map(function(name){return{name:name,role:'',alive:true,hasGun:false,immunity:false};});
@@ -587,7 +587,7 @@ function applyPreset(type){
     r.Healer=1;r.Detective=N>=6?1:0;r.Vigilante=N>=7?1:0;
   }
   var sp=Object.entries(r).filter(function(e){return e[0]!=='Civilian';}).reduce(function(s,e){return s+e[1];},0);
-  r.Civilian=Math.max(0,N-sp);state.roles=r;renderSetupRoles();
+  r.Civilian=Math.max(0,N-sp);state.roles=r;saveState();renderSetupRoles();
 }
 function renderSetupRoles(){
   initRoles();
@@ -604,7 +604,7 @@ function adjRole(name,d){
   var nv=Math.max(0,(state.roles[name]||0)+d);state.roles[name]=nv;
   document.getElementById('cnt-'+name).textContent=nv;
   var mb=document.getElementById('bminus-'+name);if(mb)mb.disabled=nv<=0;
-  updateRoleSummary();
+  updateRoleSummary();saveState();
 }
 function updateRoleSummary(){
   var N=state.players.length;var good=0,bad=0,neutral=0,total=0;
@@ -1065,7 +1065,7 @@ function checkWinConditions(){
   if(ab.length>=ag.length&&ab.length>0){triggerWin('bad');return true;}
   return false;
 }
-function triggerWin(w){state.winner=w;saveState();showScreen('win');renderWinScreen(w);}
+function triggerWin(w){state.winner=w;clearSaved();showScreen('win');renderWinScreen(w);}
 function renderWinScreen(w){
   var sc=document.getElementById('screen-win');
   sc.className='screen active win-'+w;
@@ -1123,8 +1123,8 @@ function renderCurrentScreen(){
 
 document.addEventListener('DOMContentLoaded',function(){
   var loaded=loadState();
-  if(loaded&&state.screen!=='title'&&!state.winner&&state.players.length>0){
-    showScreen('title');checkResume();
+  if(loaded&&state.screen&&state.screen!=='title'&&!state.winner){
+    renderCurrentScreen();
   } else if(loaded&&state.winner){
     showScreen('win');renderWinScreen(state.winner);
   } else {
