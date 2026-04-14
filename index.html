@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Mafia Narrator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
@@ -93,7 +93,7 @@ h1,h2,h3,.caveat{font-family:'Caveat',cursive}
 .step-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.25)}
 .step-dot.active{background:#c8b8e8}
 .step-dot.done{background:rgba(200,184,232,.5)}
-#floatingPanelBtn{position:fixed;bottom:20px;right:16px;z-index:100;background:#c0392b;border:2px solid #922b21;color:#fff;border-radius:50%;width:52px;height:52px;cursor:pointer;box-shadow:3px 4px 0 rgba(0,0,0,.18);display:none;align-items:center;justify-content:center;transition:transform .15s;padding:0}
+#floatingPanelBtn{position:fixed;bottom:max(16px,env(safe-area-inset-bottom,0px));right:16px;z-index:100;background:#c0392b;border:2px solid #922b21;color:#fff;border-radius:50%;width:52px;height:52px;cursor:pointer;box-shadow:3px 4px 0 rgba(0,0,0,.18);display:none;align-items:center;justify-content:center;transition:transform .15s;padding:0}
 #floatingPanelBtn:hover{transform:translateY(-2px)}
 #floatingPanelBtn.visible{display:flex}
 .header-bar{background:#fef6ee;border-bottom:2px dashed #e0cfc0;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50;flex-shrink:0}
@@ -198,7 +198,7 @@ h1,h2,h3,.caveat{font-family:'Caveat',cursive}
   </div>
   <p class="small-text muted text-center" style="padding:8px 16px;font-style:italic;flex-shrink:0">Pass the phone to each player privately. Tap their name to reveal their role.</p>
   <div id="revealPlayerList" class="flex-col gap-8" style="flex:1;overflow-y:auto;padding:0 16px 100px;max-width:480px;margin:0 auto;width:100%"></div>
-  <div style="padding:12px 16px 20px;max-width:480px;margin:0 auto;width:100%;flex-shrink:0;background:#fef6ee;border-top:1.5px dashed #e8c8b8">
+  <div style="padding-top:12px;padding-right:16px;padding-left:16px;padding-bottom:max(20px,env(safe-area-inset-bottom,0px));max-width:480px;margin:0 auto;width:100%;flex-shrink:0;background:#fef6ee;border-top:1.5px dashed #e8c8b8">
     <button id="beginNightBtn" class="btn btn-dark btn-block" onclick="beginNight()" disabled>Begin Night 1</button>
   </div>
 </div>
@@ -212,7 +212,7 @@ h1,h2,h3,.caveat{font-family:'Caveat',cursive}
     <div id="nightStepDots" class="step-indicator" style="margin-bottom:16px"></div>
     <div id="nightStepContent" class="night-step"></div>
   </div>
-  <div id="nightConfirmBar" style="flex-shrink:0;padding:12px 16px 24px;background:#1a1a2e;border-top:1px solid rgba(255,255,255,.1)">
+  <div id="nightConfirmBar" style="flex-shrink:0;padding-top:12px;padding-right:16px;padding-left:16px;padding-bottom:max(24px,env(safe-area-inset-bottom,0px));background:#1a1a2e;border-top:1px solid rgba(255,255,255,.1)">
     <button id="nightConfirmBtn" class="btn btn-block hidden" onclick="nightConfirm()" style="min-height:52px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.3);color:#e8e0f0;font-family:'Caveat',cursive;font-size:1.2rem">✓ Confirm</button>
   </div>
 </div>
@@ -549,8 +549,8 @@ function renderSetupPlayers(){
     return '<span class="chip">'+esc(name)+'<button class="chip-remove" onclick="removePlayer('+i+')">x</button></span>';
   }).join('');
   var n=state.setupPlayers.length;
-  document.getElementById('playerCountLabel').innerHTML='<strong style="color:'+(n>=10?'#1e8449':n>=5?'#b7950b':'#c0392b')+'">'+n+' player'+(n!==1?'s':'')+' added</strong>'+(n<10?' - need at least 10':n>30?' - max 30':'');
-  document.getElementById('nextToRolesBtn').disabled=n<10||n>30;
+  document.getElementById('playerCountLabel').innerHTML='<strong style="color:'+(n>=5?'#1e8449':'#c0392b')+'">'+n+' player'+(n!==1?'s':'')+' added</strong>'+(n<5?' - need at least 5':n>30?' - max 30':'');
+  document.getElementById('nextToRolesBtn').disabled=n<5||n>30;
 }
 document.getElementById('playerNameInput').addEventListener('keydown',function(e){if(e.key==='Enter')addPlayer();});
 function addPlayer(){
@@ -562,7 +562,7 @@ function addPlayer(){
 }
 function removePlayer(i){state.setupPlayers.splice(i,1);renderSetupPlayers();}
 function goToRoles(){
-  if(state.setupPlayers.length<10||state.setupPlayers.length>30)return;
+  if(state.setupPlayers.length<5||state.setupPlayers.length>30)return;
   state.players=state.setupPlayers.map(function(name){return{name:name,role:'',alive:true,hasGun:false,immunity:false};});
   showScreen('setup-roles');renderSetupRoles();
 }
@@ -570,9 +570,22 @@ function goToRoles(){
 function initRoles(){if(!Object.keys(state.roles).length){ROLE_ORDER.forEach(r=>state.roles[r]=0);state.roles.Civilian=state.players.length;}}
 function applyPreset(type){
   var N=state.players.length,r={};ROLE_ORDER.forEach(n=>r[n]=0);
-  if(type==='easy'){r.Mafia=Math.max(2,Math.floor(N*.2));r.Assassin=1;r.Snitch=1;r.Healer=1;r.Detective=1;r.Vigilante=1;r.Cupid=1;r.Gunsmith=1;r.Survivalist=1;r.Jester=1;}
-  else if(type==='balanced'){r.Mafia=Math.max(2,Math.floor(N*.15));r.Assassin=1;r.Snitch=1;r.Healer=1;r.Detective=1;r.Vigilante=1;r.Cupid=1;r.Spy=1;}
-  else{r.Mafia=2;r.Healer=1;r.Detective=1;r.Vigilante=1;}
+  if(type==='easy'){
+    r.Mafia=Math.max(Math.floor(N*.2),1);
+    r.Assassin=N>=7?1:0;r.Snitch=N>=8?1:0;
+    r.Healer=1;r.Detective=1;
+    r.Vigilante=N>=7?1:0;r.Cupid=N>=8?1:0;
+    r.Gunsmith=N>=9?1:0;r.Survivalist=N>=10?1:0;r.Jester=N>=9?1:0;
+  } else if(type==='balanced'){
+    r.Mafia=Math.max(Math.floor(N*.15),1);
+    r.Assassin=N>=8?1:0;r.Snitch=N>=9?1:0;
+    r.Healer=1;r.Detective=1;
+    r.Vigilante=N>=7?1:0;r.Cupid=N>=8?1:0;
+    r.Spy=N>=9?1:0;
+  } else {
+    r.Mafia=Math.max(1,Math.min(2,Math.floor(N*.2)));
+    r.Healer=1;r.Detective=N>=6?1:0;r.Vigilante=N>=7?1:0;
+  }
   var sp=Object.entries(r).filter(function(e){return e[0]!=='Civilian';}).reduce(function(s,e){return s+e[1];},0);
   r.Civilian=Math.max(0,N-sp);state.roles=r;renderSetupRoles();
 }
@@ -1055,7 +1068,7 @@ function checkWinConditions(){
 function triggerWin(w){state.winner=w;saveState();showScreen('win');renderWinScreen(w);}
 function renderWinScreen(w){
   var sc=document.getElementById('screen-win');
-  sc.className='screen flex-col active win-'+w;
+  sc.className='screen active win-'+w;
   var c={bad:{icon:'🔪',title:'The Mafia Has Won',sub:'The village has fallen into darkness...',col:'#f9d5d3'},good:{icon:'🎉',title:'Good Guys Win!',sub:'The village is safe! Bad guys defeated!',col:'#c8f0d4'},jester:{icon:'🃏',title:'The Jester Wins!',sub:"You've all been played!",col:'#e8d0f8'}}[w]||{icon:'🎉',title:'Game Over',sub:'',col:'#fff'};
   document.getElementById('winIcon').textContent=c.icon;
   document.getElementById('winTitle').textContent=c.title;document.getElementById('winTitle').style.color=c.col;
@@ -1072,9 +1085,11 @@ function renderWinScreen(w){
 }
 function playAgain(){clearAndNewGame();}
 function samePlayersNewGame(){
-  var pl=state.setupPlayers.length?state.setupPlayers.slice():state.players.map(p=>p.name);
-  clearAndNewGame();state.setupPlayers=pl;
+  var pl=state.players.map(function(p){return p.name;});
+  Object.assign(state,{roles:{},round:1,phase:'night',lovedChains:[],nightLog:[],gameLog:[],winner:null,survivalistUsed:false,gunsmithSelfGiven:{},nightActions:{},nightStepIdx:0,nightStepHistory:[],revealedPlayers:{}});
+  state.setupPlayers=pl;
   state.players=pl.map(function(name){return{name:name,role:'',alive:true,hasGun:false,immunity:false};});
+  clearSaved();
   showScreen('setup-roles');renderSetupRoles();
 }
 
