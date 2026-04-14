@@ -93,7 +93,7 @@ h1,h2,h3,.caveat{font-family:'Caveat',cursive}
 .step-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.25)}
 .step-dot.active{background:#c8b8e8}
 .step-dot.done{background:rgba(200,184,232,.5)}
-#floatingPanelBtn{position:fixed;bottom:20px;right:16px;z-index:100;background:#fdedb8;border:2px solid #d4a843;border-radius:50%;width:52px;height:52px;font-size:1.4rem;cursor:pointer;box-shadow:3px 4px 0 rgba(0,0,0,.12);display:none;align-items:center;justify-content:center;transition:transform .15s}
+#floatingPanelBtn{position:fixed;bottom:20px;right:16px;z-index:100;background:#c0392b;border:2px solid #922b21;color:#fff;border-radius:50%;width:52px;height:52px;cursor:pointer;box-shadow:3px 4px 0 rgba(0,0,0,.18);display:none;align-items:center;justify-content:center;transition:transform .15s;padding:0}
 #floatingPanelBtn:hover{transform:translateY(-2px)}
 #floatingPanelBtn.visible{display:flex}
 .header-bar{background:#fef6ee;border-bottom:2px dashed #e0cfc0;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50;flex-shrink:0}
@@ -127,6 +127,7 @@ h1,h2,h3,.caveat{font-family:'Caveat',cursive}
 <div id="screen-title" class="screen center">
   <div class="flex-col center gap-16" style="max-width:360px;width:100%">
     <img src="mafia_logo.png" alt="Mafia Narrator" class="title-logo" onerror="this.style.display='none'">
+    <p style="font-family:'Caveat',cursive;font-size:20px;color:#8b6e5a;margin-top:-8px;text-align:center">The Narrator's Toolkit</p>
     <div id="resume-banner" class="alert alert-info hidden" style="width:100%">
       <p class="small-text"><strong>Resume previous game?</strong></p>
       <div class="flex-row mt-8" style="gap:8px">
@@ -189,27 +190,30 @@ h1,h2,h3,.caveat{font-family:'Caveat',cursive}
     <div style="height:80px"></div>
   </div>
 </div>
-<div id="screen-role-reveal" class="screen" style="height:100vh">
-  <div class="header-bar">
+<div id="screen-role-reveal" class="screen" style="height:100dvh;overflow:hidden">
+  <div class="header-bar" style="flex-shrink:0">
     <button class="btn btn-ghost btn-sm" onclick="confirmBackToSetup()">Back</button>
     <span class="header-title">Reveal Roles</span>
     <span class="small-text muted" id="revealProgress"></span>
   </div>
   <p class="small-text muted text-center" style="padding:8px 16px;font-style:italic;flex-shrink:0">Pass the phone to each player privately. Tap their name to reveal their role.</p>
-  <div id="revealPlayerList" class="flex-col gap-8" style="flex:1;overflow-y:auto;padding:0 16px 8px;max-width:480px;margin:0 auto;width:100%"></div>
-  <div id="beginNightBtnWrap" class="hidden" style="padding:16px;max-width:480px;margin:0 auto;width:100%;flex-shrink:0">
-    <button class="btn btn-dark btn-block" onclick="beginNight()">Begin Night 1</button>
+  <div id="revealPlayerList" class="flex-col gap-8" style="flex:1;overflow-y:auto;padding:0 16px 100px;max-width:480px;margin:0 auto;width:100%"></div>
+  <div style="padding:12px 16px 20px;max-width:480px;margin:0 auto;width:100%;flex-shrink:0;background:#fef6ee;border-top:1.5px dashed #e8c8b8">
+    <button id="beginNightBtn" class="btn btn-dark btn-block" onclick="beginNight()" disabled>Begin Night 1</button>
   </div>
 </div>
-<div id="screen-night" class="screen night-bg">
-  <div class="night-header">
-    <button id="nightBackBtn" class="btn btn-ghost btn-sm hidden" onclick="nightBack()" style="color:#c8b8e8;border-color:rgba(255,255,255,.2);flex-shrink:0">Back</button>
+<div id="screen-night" class="screen night-bg" style="height:100dvh;overflow:hidden">
+  <div class="night-header" style="flex-shrink:0">
+    <button id="nightBackBtn" class="btn btn-ghost btn-sm hidden" onclick="nightBack()" style="color:#c8b8e8;border-color:rgba(255,255,255,.2);flex-shrink:0">← Back</button>
     <span class="caveat night-title" style="font-size:1.2rem;flex:1" id="nightHeaderLabel">Night 1</span>
     <span class="small-text" style="color:#c8b8e8;flex-shrink:0" id="nightStepCounter"></span>
   </div>
-  <div class="container flex-col gap-16" style="padding-top:24px;padding-bottom:80px">
-    <div id="nightStepDots" class="step-indicator"></div>
+  <div style="flex:1;overflow-y:auto;padding:16px;max-width:480px;margin:0 auto;width:100%">
+    <div id="nightStepDots" class="step-indicator" style="margin-bottom:16px"></div>
     <div id="nightStepContent" class="night-step"></div>
+  </div>
+  <div id="nightConfirmBar" style="flex-shrink:0;padding:12px 16px 24px;background:#1a1a2e;border-top:1px solid rgba(255,255,255,.1)">
+    <button id="nightConfirmBtn" class="btn btn-block hidden" onclick="nightConfirm()" style="min-height:52px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.3);color:#e8e0f0;font-family:'Caveat',cursive;font-size:1.2rem">✓ Confirm</button>
   </div>
 </div>
 <div id="screen-night-resolution" class="screen">
@@ -270,7 +274,14 @@ h1,h2,h3,.caveat{font-family:'Caveat',cursive}
     <div style="height:40px"></div>
   </div>
 </div>
-<button id="floatingPanelBtn" onclick="openPlayerPanel()" title="Player Status">Players</button>
+<button id="floatingPanelBtn" onclick="openPlayerPanel()" aria-label="View players">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+  </svg>
+</button>
 <div id="modalRoleList" class="modal-backdrop hidden">
   <div class="modal-box modal-full">
     <div class="flex-row justify-between" style="margin-bottom:16px">
@@ -342,7 +353,7 @@ h1,h2,h3,.caveat{font-family:'Caveat',cursive}
 </div>
 <div id="modalPrivateInfo" class="modal-backdrop hidden">
   <div class="modal-box" style="text-align:center">
-    <p class="small-text muted" style="margin-bottom:8px">Private Info - Narrator Only</p>
+    <p id="privateInfoHeader" class="small-text muted" style="margin-bottom:8px">Private Info — Narrator Only</p>
     <span id="privateInfoIcon" style="font-size:48px;display:block;margin-bottom:8px"></span>
     <h2 class="caveat title-lg" id="privateInfoRole"></h2>
     <p class="small-text mt-8" id="privateInfoPlayer" style="color:#8a7a72"></p>
@@ -619,7 +630,8 @@ function renderRoleReveal(){
     var done=state.revealedPlayers[i];
     return '<button class="player-btn" onclick="revealRole('+i+')" style="'+(done?'border-color:#8ed4a4;background:#f5fbf7':'')+'"><span style="font-size:1.3rem">'+(done?'✓':'👁')+'</span><span style="flex:1" class="truncate">'+esc(p.name)+'</span>'+(done?'<span class="small-text muted">Viewed</span>':'')+'</button>';
   }).join('');
-  document.getElementById('beginNightBtnWrap').classList.toggle('hidden',rev!==tot);
+  var beginBtn=document.getElementById('beginNightBtn');
+  if(beginBtn){beginBtn.disabled=rev!==tot;beginBtn.textContent='Begin Night 1'+(rev===tot?'':' ('+rev+'/'+tot+' revealed)');}
 }
 var _revDB=false;
 function revealRole(idx){
@@ -672,6 +684,54 @@ function renderNightPhase(){
   renderNightStep();
 }
 
+function nightStage(key,val,extra){
+  nightUIState.staged={key:key,val:val,extra:extra!==undefined?extra:null};
+  document.getElementById('nightConfirmBtn').classList.remove('hidden');
+  // Update selection highlights via data-selval attributes
+  document.querySelectorAll('[data-selval]').forEach(function(btn){
+    btn.classList.toggle('selected',btn.getAttribute('data-selval')===String(val));
+  });
+}
+
+function nightConfirm(){
+  var step=nightSteps[state.nightStepIdx];
+  if(!step)return;
+  var staged=nightUIState.staged;
+  if(!staged&&step.action!=='finish-night')return;
+  document.getElementById('nightConfirmBtn').classList.add('hidden');
+
+  if(step.action==='peek'){
+    var name=staged.val;
+    var p=state.players.find(pl=>pl.name===name);if(!p){nightAdvance();return;}
+    var rd=getRD(p.role),f=fc(p.role);
+    var isDetective=step.type==='detective';
+    state.nightActions[step.resultKey]=name;
+    nightUIState.staged=null;
+    document.getElementById('privateInfoHeader').textContent=isDetective?'👁 Hand phone to the Detective(s) — show them this screen.':'Private Info — Narrator Only';
+    document.getElementById('privateInfoIcon').textContent=rd.emoji;
+    document.getElementById('privateInfoRole').textContent=p.role;
+    document.getElementById('privateInfoPlayer').textContent=(isDetective?'Target: ':'Player: ')+p.name;
+    document.getElementById('privateInfoBadge').innerHTML='<span class="badge badge-'+f+'">'+(f==='bad'?'Bad Guy':f==='good'?'Good Guy':'Neutral')+'</span>';
+    document.getElementById('privateInfoClose').textContent=isDetective?'Got it — close':'Close';
+    document.getElementById('privateInfoClose').onclick=function(){closeModal('modalPrivateInfo');nightAdvance();};
+    openModal('modalPrivateInfo');
+    return;
+  }
+  if(step.action==='gunsmith'){
+    var gname=staged.val,isSelf=staged.extra;
+    var gp=state.players.find(pl=>pl.name===gname);if(gp)gp.hasGun=true;
+    if(isSelf){var gs=state.players.find(pl=>pl.role==='Gunsmith'&&pl.alive);if(gs)state.gunsmithSelfGiven[gs.name]=true;}
+    state.nightActions.gunsTarget=gname;addLog('Gunsmith gave gun to '+gname+'.');
+    nightUIState.staged=null;nightAdvance();return;
+  }
+  if(staged&&staged.key){
+    state.nightActions[staged.key]=staged.val;
+    nightUIState.snitchPhase=null;nightUIState.vigChoice=null;
+  }
+  nightUIState.staged=null;
+  nightAdvance();
+}
+
 function renderNightStep(){
   var step=nightSteps[state.nightStepIdx];
   if(!step)return;
@@ -683,13 +743,20 @@ function renderNightStep(){
   document.getElementById('nightStepDots').innerHTML=nightSteps.map(function(_,i){
     return '<div class="step-dot '+(i<state.nightStepIdx?'done':i===state.nightStepIdx?'active':'')+'"></div>';
   }).join('');
+
+  // Pre-populate staged state from nightActions after back navigation
+  if(!nightUIState.staged&&step.resultKey&&state.nightActions[step.resultKey]!==undefined&&step.action!=='snitch'){
+    nightUIState.staged={key:step.resultKey,val:state.nightActions[step.resultKey],extra:null};
+  }
+
   var content=document.getElementById('nightStepContent');
   content.className='';void content.offsetWidth;content.className='night-step';
   var alive=state.players.filter(p=>p.alive);
   var html='<div class="night-card"><h2 class="caveat night-title" style="margin-bottom:12px">'+step.title+'</h2>';
+  var stagedVal=nightUIState.staged?nightUIState.staged.val:null;
 
   if(step.action==='continue'){
-    html+='<p class="night-text" style="margin-bottom:20px">'+step.text+'</p><button class="btn btn-dark btn-block" onclick="nightAdvance()">Continue</button>';
+    html+='<p class="night-text" style="margin-bottom:20px">'+step.text+'</p><button class="btn btn-dark btn-block" onclick="nightAdvance()">Tap to continue</button>';
   } else if(step.action==='cupid'){
     html+=renderCupidHTML(alive);
   } else if(step.action==='select-player'){
@@ -697,37 +764,45 @@ function renderNightStep(){
     alive.filter(p=>!(step.excludeRoles||[]).includes(p.role)).forEach(function(p){
       var idx=state.players.indexOf(p);
       var lv=isPlayerLoved(idx)?'  💘':'';
-      html+='<button class="player-btn-night" onclick="selectNT(\''+step.resultKey+'\',\''+ea(p.name)+'\')">'+esc(p.name)+lv+'</button>';
+      var isSel=stagedVal!==null&&stagedVal===p.name;
+      html+='<button class="player-btn-night'+(isSel?' selected':'')+'" data-selval="'+ea(p.name)+'" onclick="nightStage(\''+step.resultKey+'\',\''+ea(p.name)+'\')">'+esc(p.name)+lv+'</button>';
     });
-    if(step.skipable)html+='<button class="btn btn-ghost btn-block mt-12" style="color:#c8b8e8;border-color:rgba(255,255,255,.2)" onclick="selectNT(\''+step.resultKey+'\',null)">'+(step.skipLabel||'Skip')+'</button>';
+    if(step.skipable)html+='<button class="btn btn-ghost btn-block mt-12" style="color:#c8b8e8;border-color:rgba(255,255,255,.2)" data-selval="__skip__" onclick="nightStage(\''+step.resultKey+'\',null)">'+(step.skipLabel||'Skip')+'</button>';
   } else if(step.action==='yes-no-player'){
     if(nightUIState.vigChoice==='yes'){
       html+='<p class="night-text" style="margin-bottom:12px">Select a target:</p>';
       alive.filter(p=>!step.excludeRoles.includes(p.role)).forEach(function(p){
-        html+='<button class="player-btn-night" onclick="selectNT(\''+step.resultKey+'\',\''+ea(p.name)+'\')">'+esc(p.name)+'</button>';
+        var isSel=stagedVal!==null&&stagedVal===p.name;
+        html+='<button class="player-btn-night'+(isSel?' selected':'')+'" data-selval="'+ea(p.name)+'" onclick="nightStage(\''+step.resultKey+'\',\''+ea(p.name)+'\')">'+esc(p.name)+'</button>';
       });
     } else {
       html+='<p class="night-text" style="margin-bottom:16px">'+step.text+'</p>';
-      html+='<button class="player-btn-night" onclick="nightUIState.vigChoice=\'yes\';renderNightStep()">🔫 Yes, shoot someone</button>';
-      html+='<button class="player-btn-night" onclick="selectNT(\''+step.resultKey+'\',null)">😴 No, stay hidden</button>';
+      html+='<button class="player-btn-night" onclick="nightUIState.vigChoice=\'yes\';nightUIState.staged=null;document.getElementById(\'nightConfirmBtn\').classList.add(\'hidden\');renderNightStep()">🔫 Yes, shoot someone</button>';
+      html+='<button class="player-btn-night'+(stagedVal===null&&nightUIState.staged?' selected':'')+'" data-selval="__skip__" onclick="nightStage(\''+step.resultKey+'\',null)">😴 No, stay hidden</button>';
     }
   } else if(step.action==='peek'){
     html+='<p class="night-text" style="margin-bottom:12px">'+step.text+'</p>';
     alive.filter(p=>!(step.excludeRoles||[]).includes(p.role)).forEach(function(p){
-      html+='<button class="player-btn-night" onclick="peekPlayer(\''+ea(p.name)+'\',\''+step.resultKey+'\')">'+esc(p.name)+'</button>';
+      var isSel=stagedVal!==null&&stagedVal===p.name;
+      html+='<button class="player-btn-night'+(isSel?' selected':'')+'" data-selval="'+ea(p.name)+'" onclick="nightStage(\''+step.resultKey+'\',\''+ea(p.name)+'\')">'+esc(p.name)+'</button>';
     });
   } else if(step.action==='snitch'){
     if(nightUIState.snitchPhase==='role'){
+      var stagedSnitch=nightUIState.staged&&nightUIState.staged.val?nightUIState.staged.val.guessedRole:null;
       html+='<p class="night-text" style="margin-bottom:12px">Guess '+esc(nightUIState.snitchTarget)+"'s role:</p>";
-      ROLE_ORDER.forEach(function(rn){html+='<button class="player-btn-night" onclick="snitchPickRole(\''+ea(rn)+'\')">'+getRD(rn).emoji+' '+rn+'</button>';});
+      // Spy is never in the Snitch's guess list
+      ROLE_ORDER.filter(function(rn){return rn!=='Spy';}).forEach(function(rn){
+        var isSel=stagedSnitch===rn;
+        html+='<button class="player-btn-night'+(isSel?' selected':'')+'" data-selval="'+ea(rn)+'" onclick="snitchPickRole(\''+ea(rn)+'\')">'+getRD(rn).emoji+' '+rn+'</button>';
+      });
     } else if(nightUIState.snitchPhase==='player'){
       html+='<p class="night-text" style="margin-bottom:12px">Select a player to guess:</p>';
       alive.forEach(function(p){html+='<button class="player-btn-night" onclick="snitchPickPlayer(\''+ea(p.name)+'\')">'+esc(p.name)+'</button>';});
-      html+='<button class="btn btn-ghost btn-block mt-12" style="color:#c8b8e8" onclick="selectNT(\'snitchGuess\',null)">Skip</button>';
+      html+='<button class="btn btn-ghost btn-block mt-12" style="color:#c8b8e8" onclick="nightStage(\'snitchGuess\',null)">Skip</button>';
     } else {
       html+='<p class="night-text" style="margin-bottom:16px">'+step.text+'</p>';
       html+='<button class="player-btn-night" onclick="nightUIState.snitchPhase=\'player\';renderNightStep()">🐀 Yes, make a guess</button>';
-      html+='<button class="player-btn-night" onclick="selectNT(\'snitchGuess\',null)">😴 Skip</button>';
+      html+='<button class="player-btn-night" data-selval="__skip__" onclick="nightStage(\'snitchGuess\',null)">😴 Skip</button>';
     }
   } else if(step.action==='gunsmith'){
     html+='<p class="night-text" style="margin-bottom:12px">'+step.text+'</p>';
@@ -737,14 +812,19 @@ function renderNightStep(){
       var used=isSelf&&!!state.gunsmithSelfGiven[gsName];
       var lv=isPlayerLoved(state.players.indexOf(p))?'  💘':'';
       var gun=p.hasGun?'  🔫':'';
+      var isSel=stagedVal!==null&&stagedVal===p.name;
       if(used)html+='<button class="player-btn-night" disabled>'+esc(p.name)+lv+gun+' (self-gift used)</button>';
-      else html+='<button class="player-btn-night" onclick="gunsGive(\''+ea(p.name)+'\','+isSelf+')">'+esc(p.name)+lv+gun+'</button>';
+      else html+='<button class="player-btn-night'+(isSel?' selected':'')+'" data-selval="'+ea(p.name)+'" onclick="nightStage(\'gunsTarget\',\''+ea(p.name)+'\','+isSelf+')">'+esc(p.name)+lv+gun+'</button>';
     });
   } else if(step.action==='finish-night'){
-    html+='<p class="night-text" style="margin-bottom:20px">'+step.text+'</p><button class="btn btn-primary btn-block" onclick="resolveNight()">Resolve Night</button>';
+    html+='<p class="night-text" style="margin-bottom:20px">'+step.text+'</p><button class="btn btn-primary btn-block" onclick="resolveNight()" style="min-height:52px">Tap to see what happened →</button>';
   }
   html+='</div>';
   content.innerHTML=html;
+
+  // Show/hide confirm button based on staged state (not for continue/finish-night which use inline buttons)
+  var needsConfirm=(step.action!=='continue'&&step.action!=='finish-night'&&step.action!=='cupid');
+  document.getElementById('nightConfirmBtn').classList.toggle('hidden',!needsConfirm||!nightUIState.staged);
 }
 
 function renderCupidHTML(alive){
@@ -755,9 +835,7 @@ function renderCupidHTML(alive){
   if(phase==='couple-reveal'){
     var link=state.nightActions.cupidLink||[0,1];
     var pA=state.players[link[0]],pB=state.players[link[1]];
-    var mates=Array.from(new Set(getChainMates(link[0]).concat(getChainMates(link[1])))).filter(function(n){return n!==(pA&&pA.name)&&n!==(pB&&pB.name);});
-    var chainNote=mates.length?'<p style="color:#f0d584;font-size:.9rem;margin-top:8px">Also in chain: '+mates.map(esc).join(', ')+'</p>':'';
-    return '<div class="couple-card"><p style="color:#c8b8e8;font-size:.85rem;margin-bottom:8px">Hand phone to both players</p><span style="font-size:48px;display:block;margin:8px 0">💘</span><h2 class="caveat" style="font-size:1.8rem;color:#e8d0f8;margin-bottom:8px">You are linked in love!</h2><p style="color:#d8d0e8">If your partner dies, you will die too.</p>'+chainNote+'<button class="btn btn-neutral btn-block mt-16" onclick="nightUIState.cupidPhase=\'close-eyes\';renderNightStep()">Got it 💘</button></div>';
+    return '<div class="couple-card"><p style="color:#c8b8e8;font-size:.85rem;margin-bottom:8px">🔊 Narrator instruction</p><span style="font-size:48px;display:block;margin:8px 0">💘</span><p style="color:#e8d0f8;font-size:1.1rem;line-height:1.6;margin-bottom:16px">Wake <strong>'+esc(pA&&pA.name)+'</strong> and <strong>'+esc(pB&&pB.name)+'</strong>. Ask them to open their eyes and look at each other — they have been linked in love. Then ask them to close their eyes.</p><button class="btn btn-neutral btn-block" onclick="nightUIState.cupidPhase=\'close-eyes\';renderNightStep()">Done →</button></div>';
   }
   if(phase==='link-confirm'){
     var sel=nightUIState.cupidSelected||[];
@@ -765,9 +843,9 @@ function renderCupidHTML(alive){
     var prev=previewChainLink(sel[0],sel[1]);
     var chainNote2=prev.already
       ?'<div class="alert alert-warning mt-8">These players are already in the same chain.</div>'
-      :prev.members.length>2?'<div class="alert alert-info mt-8">New chain: '+prev.members.map(esc).join(' - ')+'</div>':'';
-    var assNote=([sel[0],sel[1]].some(function(idx){return state.players[idx]&&state.players[idx].role==='Assassin';}))?'<div class="alert alert-warning mt-8">One of these players is the Assassin - they will become a Civilian!</div>':'';
-    return '<p class="night-text" style="margin-bottom:12px">Linking in love:</p><div class="night-card" style="margin-bottom:12px;text-align:center"><span style="font-size:28px">💘</span><p style="color:#e8d0f8;font-size:1.1rem;margin-top:8px"><strong>'+esc((pA2&&pA2.name)||'')+'</strong> and <strong>'+esc((pB2&&pB2.name)||'')+'</strong></p></div>'+chainNote2+assNote+'<button class="btn btn-neutral btn-block mt-12" onclick="cupidConfirmLink()">Show couple their bond</button>';
+      :prev.members.length>2?'<div class="alert alert-info mt-8">New chain: '+prev.members.map(esc).join(' → ')+'</div>':'';
+    var assNote=([sel[0],sel[1]].some(function(idx){return state.players[idx]&&state.players[idx].role==='Assassin';}))?'<div class="alert alert-warning mt-8">One of these players is the Assassin — they will become a Civilian!</div>':'';
+    return '<p class="night-text" style="margin-bottom:12px">Linking in love:</p><div class="night-card" style="margin-bottom:12px;text-align:center"><span style="font-size:28px">💘</span><p style="color:#e8d0f8;font-size:1.1rem;margin-top:8px"><strong>'+esc((pA2&&pA2.name)||'')+'</strong> and <strong>'+esc((pB2&&pB2.name)||'')+'</strong></p></div>'+chainNote2+assNote+'<button class="btn btn-neutral btn-block mt-12" onclick="cupidConfirmLink()">Show couple their bond →</button>';
   }
   var sel2=nightUIState.cupidSelected||[];
   var h='<p class="night-text" style="margin-bottom:12px">Choose two players to link in love tonight.</p>';
@@ -793,6 +871,7 @@ function cupidPreview(){
 function cupidConfirmLink(){nightUIState.cupidPhase='couple-reveal';renderNightStep();}
 
 function nightAdvance(){
+  document.getElementById('nightConfirmBtn').classList.add('hidden');
   state.nightStepHistory.push({
     stepIdx:state.nightStepIdx,
     nightActions:JSON.parse(JSON.stringify(state.nightActions||{})),
@@ -803,6 +882,8 @@ function nightAdvance(){
   renderNightStep();
 }
 function nightBack(){
+  document.getElementById('nightConfirmBtn').classList.add('hidden');
+  nightUIState.staged=null;
   if(nightUIState.cupidPhase==='close-eyes'){nightUIState.cupidPhase='couple-reveal';renderNightStep();return;}
   if(nightUIState.cupidPhase==='couple-reveal'){nightUIState.cupidPhase='link-confirm';renderNightStep();return;}
   if(nightUIState.cupidPhase==='link-confirm'){nightUIState.cupidPhase=null;nightUIState.cupidSelected=[];state.nightActions.cupidLink=null;renderNightStep();return;}
@@ -816,25 +897,8 @@ function nightBack(){
   nightUIState=JSON.parse(JSON.stringify(prev.uiState||{}));
   saveState();renderNightStep();
 }
-function selectNT(key,val){state.nightActions[key]=val;nightUIState.snitchPhase=null;nightUIState.vigChoice=null;nightAdvance();}
-function snitchPickPlayer(name){nightUIState.snitchTarget=name;nightUIState.snitchPhase='role';renderNightStep();}
-function snitchPickRole(role){state.nightActions.snitchGuess={target:nightUIState.snitchTarget,guessedRole:role};nightUIState.snitchPhase=null;nightAdvance();}
-function gunsGive(name,isSelf){
-  var p=state.players.find(pl=>pl.name===name);if(p)p.hasGun=true;
-  if(isSelf){var gs=state.players.find(pl=>pl.role==='Gunsmith'&&pl.alive);if(gs)state.gunsmithSelfGiven[gs.name]=true;}
-  state.nightActions.gunsTarget=name;addLog('Gunsmith gave gun to '+name+'.');nightAdvance();
-}
-function peekPlayer(name,key){
-  var p=state.players.find(pl=>pl.name===name);if(!p)return;
-  var rd=getRD(p.role),f=fc(p.role);
-  document.getElementById('privateInfoIcon').textContent=rd.emoji;
-  document.getElementById('privateInfoRole').textContent=p.role;
-  document.getElementById('privateInfoPlayer').textContent='Player: '+p.name;
-  document.getElementById('privateInfoBadge').innerHTML='<span class="badge badge-'+f+'">'+(f==='bad'?'Bad Guy':f==='good'?'Good Guy':'Neutral')+'</span>';
-  state.nightActions[key]=name;
-  document.getElementById('privateInfoClose').onclick=function(){closeModal('modalPrivateInfo');nightAdvance();};
-  openModal('modalPrivateInfo');
-}
+function snitchPickPlayer(name){nightUIState.snitchTarget=name;nightUIState.snitchPhase='role';nightUIState.staged=null;document.getElementById('nightConfirmBtn').classList.add('hidden');renderNightStep();}
+function snitchPickRole(role){nightStage('snitchGuess',{target:nightUIState.snitchTarget,guessedRole:role});}
 
 function resolveNight(){
   var acts=state.nightActions;
@@ -999,9 +1063,10 @@ function renderWinScreen(w){
   document.getElementById('winRounds').textContent=state.round;
   var surv=state.players.filter(p=>p.alive);
   document.getElementById('winSurvivors').innerHTML=surv.map(p=>'<span class="chip">'+esc(p.name)+'</span>').join('')||'<span class="muted small-text">None</span>';
+  var roleCol={bad:'#c0392b',good:'#1e8449',neutral:'#b7950b'};
   document.getElementById('winAllRoles').innerHTML=state.players.map(function(p){
-    var rd=getRD(p.role),f=fc(p.role);
-    return '<div class="flex-row" style="padding:6px 0;border-bottom:1px dashed rgba(255,255,255,.15)"><span style="font-size:1.3rem;margin-right:8px">'+rd.emoji+'</span><span style="flex:1;font-weight:600;'+(p.alive?'':'text-decoration:line-through;opacity:.6')+'">'+esc(p.name)+'</span><span class="badge badge-'+f+'">'+p.role+'</span></div>';
+    var rd=getRD(p.role),f=fc(p.role),col=roleCol[f]||'#3d2b1a';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#ffffff;border:2px solid '+(f==='bad'?'#e8a09a':f==='good'?'#8ed4a4':'#f0d584')+';margin-bottom:8px;box-shadow:2px 3px 0 rgba(0,0,0,.06)"><span style="font-size:1.4rem;flex-shrink:0">'+rd.emoji+'</span><span style="flex:1;font-weight:700;color:#2c1a0e;'+(p.alive?'':'text-decoration:line-through;')+'">'+esc(p.name)+'</span><span style="font-family:\'Caveat\',cursive;font-weight:700;font-size:1rem;color:'+col+'">'+p.role+'</span></div>';
   }).join('');
   document.getElementById('winGameLog').innerHTML=state.gameLog.map(l=>'<p style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,.1)">'+esc(l)+'</p>').join('');
 }
