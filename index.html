@@ -207,6 +207,8 @@ h1,h2,h3,.caveat{font-family:'Caveat',cursive}
     <button id="nightBackBtn" class="btn btn-ghost btn-sm hidden" onclick="nightBack()" style="color:#c8b8e8;border-color:rgba(255,255,255,.2);flex-shrink:0">← Back</button>
     <span class="caveat night-title" style="font-size:1.2rem;flex:1" id="nightHeaderLabel">Night 1</span>
     <span class="small-text" style="color:#c8b8e8;flex-shrink:0" id="nightStepCounter"></span>
+    <button class="btn btn-ghost btn-sm" onclick="openAddPlayerModal()" aria-label="Add player" style="color:#c8b8e8;border-color:rgba(255,255,255,.2);padding:6px 10px;flex-shrink:0">➕</button>
+    <button class="btn btn-ghost btn-sm" onclick="confirmRestartGame()" aria-label="Restart game" style="color:#c8b8e8;border-color:rgba(255,255,255,.2);padding:6px 10px;flex-shrink:0">🔄</button>
   </div>
   <div style="flex:1;overflow-y:auto;padding:16px;max-width:480px;margin:0 auto;width:100%">
     <div id="nightStepDots" class="step-indicator" style="margin-bottom:16px"></div>
@@ -217,7 +219,7 @@ h1,h2,h3,.caveat{font-family:'Caveat',cursive}
   </div>
 </div>
 <div id="screen-night-resolution" class="screen">
-  <div class="header-bar"><span class="header-title">Morning Briefing</span></div>
+  <div class="header-bar"><span class="header-title">Morning Briefing</span><button class="btn btn-ghost btn-sm" onclick="openAddPlayerModal()" aria-label="Add player" style="padding:6px 10px;flex-shrink:0">➕👤</button><button class="btn btn-ghost btn-sm" onclick="confirmRestartGame()" aria-label="Restart game" style="padding:6px 10px;flex-shrink:0">🔄</button></div>
   <div class="container flex-col gap-12" style="padding-top:20px;padding-bottom:80px">
     <p class="caveat title-md text-center muted">Round <span id="resolutionRound"></span></p>
     <div class="card" style="padding:20px">
@@ -228,7 +230,7 @@ h1,h2,h3,.caveat{font-family:'Caveat',cursive}
   </div>
 </div>
 <div id="screen-day" class="screen">
-  <div class="header-bar"><span class="header-title">Day <span id="dayRoundLabel"></span></span></div>
+  <div class="header-bar"><span class="header-title">Day <span id="dayRoundLabel"></span></span><button class="btn btn-ghost btn-sm" onclick="openAddPlayerModal()" aria-label="Add player" style="padding:6px 10px;flex-shrink:0">➕👤</button><button class="btn btn-ghost btn-sm" onclick="confirmRestartGame()" aria-label="Restart game" style="padding:6px 10px;flex-shrink:0">🔄</button></div>
   <div class="container flex-col gap-12" style="padding-top:20px;padding-bottom:80px">
     <div id="gunSection"></div>
     <div id="voteSection">
@@ -395,6 +397,36 @@ h1,h2,h3,.caveat{font-family:'Caveat',cursive}
     <p class="small-text muted" style="margin-bottom:12px">Select a player to force-eliminate (ignores immunity):</p>
     <div id="overridePlayerList" class="flex-col gap-8 scroll-list-sm"></div>
     <button class="btn btn-ghost btn-block mt-12" onclick="closeModal('modalOverride')">Cancel</button>
+  </div>
+</div>
+<div id="modalAlert" class="modal-backdrop hidden">
+  <div class="modal-box">
+    <h2 class="caveat title-md" style="margin-bottom:8px" id="alertTitle">Notice</h2>
+    <p class="small-text muted" style="margin-bottom:16px" id="alertMsg"></p>
+    <button class="btn btn-primary" onclick="closeModal('modalAlert')">OK</button>
+  </div>
+</div>
+<div id="modalAddPlayer" class="modal-backdrop hidden">
+  <div class="modal-box modal-full">
+    <div class="flex-row justify-between" style="margin-bottom:16px">
+      <h2 class="caveat title-lg">Add Player</h2>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modalAddPlayer')">✕</button>
+    </div>
+    <div class="flex-col gap-12">
+      <div>
+        <p class="small-text muted" style="margin-bottom:6px">Player name</p>
+        <input type="text" id="addPlayerName" class="input" placeholder="Enter player name..." maxlength="30" oninput="apUpdateConfirmBtn()">
+        <div id="addPlayerError" class="alert alert-error mt-8 hidden"></div>
+      </div>
+      <hr class="divider">
+      <p class="caveat title-sm">Assign Role</p>
+      <div class="flex-row gap-8">
+        <button id="apBtnRandom" class="btn btn-ghost" style="flex:1" onclick="apSetMode('random')">🎲 Randomise</button>
+        <button id="apBtnChoose" class="btn btn-ghost" style="flex:1" onclick="apSetMode('choose')">🃏 Choose</button>
+      </div>
+      <div id="apRoleList" class="hidden flex-col gap-8 scroll-list-sm"></div>
+      <button id="apConfirmBtn" class="btn btn-success btn-block" onclick="apConfirm()" disabled>➕ Add Player &amp; Reveal Role</button>
+    </div>
   </div>
 </div>
 <script>
@@ -1131,6 +1163,103 @@ document.addEventListener('DOMContentLoaded',function(){
     showScreen('title');
   }
 });
+
+function confirmRestartGame(){
+  showConfirm('Restart Game?','All current game progress will be lost.',function(){clearAndNewGame();});
+}
+
+var apState={mode:null,role:null};
+
+function openAddPlayerModal(){
+  if(state.phase==='night'){
+    showAlert('Night Phase','Players can only be added during the day.');
+    return;
+  }
+  apState={mode:null,role:null};
+  var ni=document.getElementById('addPlayerName');if(ni)ni.value='';
+  var ae=document.getElementById('addPlayerError');if(ae)ae.classList.add('hidden');
+  var rb=document.getElementById('apBtnRandom');if(rb)rb.className='btn btn-ghost';
+  var cb=document.getElementById('apBtnChoose');if(cb)cb.className='btn btn-ghost';
+  var rl=document.getElementById('apRoleList');if(rl)rl.classList.add('hidden');
+  var cfb=document.getElementById('apConfirmBtn');if(cfb)cfb.disabled=true;
+  openModal('modalAddPlayer');
+  setTimeout(function(){if(ni)ni.focus();},100);
+}
+
+function showAlert(title,msg){
+  document.getElementById('alertTitle').textContent=title;
+  document.getElementById('alertMsg').textContent=msg;
+  openModal('modalAlert');
+}
+
+function apSetMode(mode){
+  apState.mode=mode;apState.role=null;
+  var rb=document.getElementById('apBtnRandom');
+  var cb=document.getElementById('apBtnChoose');
+  var rl=document.getElementById('apRoleList');
+  if(mode==='random'){
+    if(rb)rb.className='btn btn-primary';
+    if(cb)cb.className='btn btn-ghost';
+    if(rl)rl.classList.add('hidden');
+    apState.role='__random__';
+  } else {
+    if(rb)rb.className='btn btn-ghost';
+    if(cb)cb.className='btn btn-neutral';
+    if(rl){
+      rl.classList.remove('hidden');
+      rl.innerHTML=ROLES.map(function(r){
+        var f=fc(r.name);
+        return '<button class="player-btn" id="apRole-'+ea(r.name)+'" onclick="apPickRole(\''+ea(r.name)+'\')"><span style="font-size:1.3rem">'+r.emoji+'</span><span style="flex:1">'+esc(r.name)+'</span><span class="badge badge-'+f+'">'+(f==='bad'?'Bad':f==='good'?'Good':'Neutral')+'</span></button>';
+      }).join('');
+    }
+  }
+  apUpdateConfirmBtn();
+}
+
+function apPickRole(rn){
+  apState.role=rn;
+  document.querySelectorAll('#apRoleList .player-btn').forEach(function(b){b.classList.remove('selected');});
+  var s=document.getElementById('apRole-'+rn);if(s)s.classList.add('selected');
+  apUpdateConfirmBtn();
+}
+
+function apUpdateConfirmBtn(){
+  var name=(document.getElementById('addPlayerName')||{value:''}).value.trim();
+  var hasRole=apState.mode==='random'||(apState.mode==='choose'&&apState.role);
+  var btn=document.getElementById('apConfirmBtn');
+  if(btn)btn.disabled=!name||!hasRole;
+}
+
+function apConfirm(){
+  var name=document.getElementById('addPlayerName').value.trim();
+  var ae=document.getElementById('addPlayerError');ae.classList.add('hidden');
+  if(!name){ae.textContent='Please enter a player name.';ae.classList.remove('hidden');return;}
+  if(state.players.some(function(p){return p.name.toLowerCase()===name.toLowerCase();})){
+    ae.textContent='A player with that name already exists.';ae.classList.remove('hidden');return;
+  }
+  var role;
+  if(apState.role==='__random__'){
+    var pool=[];
+    ROLE_ORDER.forEach(function(rn){for(var i=0;i<(state.roles[rn]||0);i++)pool.push(rn);});
+    if(!pool.length)pool=['Civilian'];
+    role=pool[Math.floor(Math.random()*pool.length)];
+  } else {
+    role=apState.role;
+  }
+  state.players.push({name:name,role:role,alive:true,hasGun:false,immunity:false});
+  addLog(name+' joined the game as '+role+'.');
+  saveState();
+  closeModal('modalAddPlayer');
+  var rd=getRD(role),f=fc(role);
+  document.getElementById('revealIcon').textContent=rd.emoji;
+  document.getElementById('revealRoleName').textContent=role;
+  document.getElementById('revealFactionBadge').innerHTML='<span class="badge badge-'+f+'">'+(f==='bad'?'Bad Guy':f==='good'?'Good Guy':'Neutral')+'</span>';
+  document.getElementById('revealRoleDesc').textContent=rd.desc;
+  document.getElementById('revealSpecialNote').textContent=rd.special||'';
+  document.getElementById('roleRevealCard').className='role-reveal-card role-card-reveal card-'+f;
+  document.getElementById('roleRevealCard').querySelector('button').onclick=function(){closeModal('modalRoleReveal');};
+  openModal('modalRoleReveal');
+}
 </script>
 </body>
 </html>
